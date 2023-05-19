@@ -1,0 +1,517 @@
+{
+.appVersion = "3180";
+.formatVersion = 3;
+date = "2023-05-18 08:45:08 +0000";
+familyName = "COLRv1 Test Font";
+fontMaster = (
+{
+id = m01;
+metricValues = (
+{
+over = 16;
+pos = 800;
+},
+{
+over = 16;
+pos = 700;
+},
+{
+over = 16;
+pos = 500;
+},
+{
+over = -16;
+},
+{
+over = -16;
+pos = -200;
+},
+{
+}
+);
+name = Regular;
+}
+);
+glyphs = (
+{
+glyphname = space;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 200;
+}
+);
+unicode = 32;
+},
+{
+glyphname = circle;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+shapes = (
+{
+closed = 1;
+nodes = (
+(486,96,o),
+(598,208,o),
+(598,346,cs),
+(598,484,o),
+(486,596,o),
+(348,596,cs),
+(210,596,o),
+(98,484,o),
+(98,346,cs),
+(98,208,o),
+(210,96,o),
+(348,96,cs)
+);
+}
+);
+width = 700;
+}
+);
+unicode = 9675;
+},
+{
+glyphname = p1_PaintColrLayers;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+production = p1_PaintColrLayers;
+unicode = 97;
+},
+{
+glyphname = p2_PaintSolid;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+production = p2_PaintSolid;
+unicode = 98;
+},
+{
+glyphname = p3_PaintVarSolid;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+production = p3_PaintVarSolid;
+unicode = 99;
+},
+{
+glyphname = p4_PaintLinearGradient;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+production = p4_PaintLinearGradient;
+unicode = 100;
+},
+{
+glyphname = p5_PaintVarLinearGradient;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+production = p5_PaintVarLinearGradient;
+unicode = 101;
+},
+{
+glyphname = p6_PaintRadialGradient;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+production = p6_PaintRadialGradient;
+unicode = 102;
+},
+{
+glyphname = p10_PaintGlyph;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 106;
+},
+{
+glyphname = p11_PaintColrGlyph;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 107;
+},
+{
+glyphname = p12_PaintTransform;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 108;
+},
+{
+glyphname = p13_PaintVarTransform;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 109;
+},
+{
+glyphname = p14_PaintTranslate;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 110;
+},
+{
+glyphname = p15_PaintVarTranslate;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 111;
+},
+{
+glyphname = p16_PaintScale;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 112;
+},
+{
+glyphname = p17_PaintVarScale;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 113;
+},
+{
+glyphname = p18_PaintScaleAroundCenter;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 114;
+},
+{
+glyphname = p19_PaintVarScaleAroundCenter;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 115;
+},
+{
+glyphname = p20_PaintScaleUniform;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 116;
+},
+{
+glyphname = p21_PaintVarScaleUniform;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 117;
+},
+{
+glyphname = p22_PaintScaleUniformAroundCenter;
+lastChange = "2023-05-19 06:51:03 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 118;
+},
+{
+glyphname = p23_PaintVarScaleUniformAroundCenter;
+lastChange = "2023-05-19 06:51:07 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 119;
+},
+{
+glyphname = p24_PaintRotate;
+lastChange = "2023-05-19 06:51:11 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 120;
+},
+{
+glyphname = p25_PaintVarRotate;
+lastChange = "2023-05-19 06:51:17 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 121;
+},
+{
+glyphname = p26_PaintRotateAroundCenter;
+lastChange = "2023-05-19 06:51:53 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+production = p26_PaintRotateAroundCenter;
+unicode = 122;
+},
+{
+glyphname = p27_PaintVarRotateAroundCenter;
+lastChange = "2023-05-19 06:52:11 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 65;
+},
+{
+glyphname = p28_PaintSkew;
+lastChange = "2023-05-19 06:52:14 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 66;
+},
+{
+glyphname = p29_PaintVarSkew;
+lastChange = "2023-05-19 06:52:17 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 67;
+},
+{
+glyphname = p30_PaintSkewAroundCenter;
+lastChange = "2023-05-19 06:52:27 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 68;
+},
+{
+glyphname = p31_PaintVarSkewAroundCenter;
+lastChange = "2023-05-19 06:52:30 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 69;
+},
+{
+glyphname = p32_PaintComposite;
+lastChange = "2023-05-19 06:52:41 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 70;
+},
+{
+glyphname = p7_PaintVarRadialGradient;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 103;
+},
+{
+glyphname = p8_PaintSweepGradient;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 104;
+},
+{
+glyphname = p9_PaintVarSweepGradient;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+width = 600;
+}
+);
+unicode = 105;
+},
+{
+glyphname = square;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+shapes = (
+{
+closed = 1;
+nodes = (
+(100,100,l),
+(600,100,l),
+(600,600,l),
+(100,600,l)
+);
+}
+);
+width = 700;
+}
+);
+},
+{
+glyphname = star;
+lastChange = "2023-05-18 13:54:10 +0000";
+layers = (
+{
+layerId = m01;
+shapes = (
+{
+closed = 1;
+nodes = (
+(181,532,l),
+(109,460,l),
+(181,388,l),
+(181,287,l),
+(282,287,l),
+(354,215,l),
+(426,287,l),
+(527,287,l),
+(527,388,l),
+(599,460,l),
+(527,532,l),
+(527,633,l),
+(426,633,l),
+(354,705,l),
+(282,633,l),
+(181,633,l)
+);
+}
+);
+width = 708;
+}
+);
+}
+);
+metrics = (
+{
+type = ascender;
+},
+{
+type = "cap height";
+},
+{
+type = "x-height";
+},
+{
+type = baseline;
+},
+{
+type = descender;
+},
+{
+type = "italic angle";
+}
+);
+settings = {
+disablesNiceNames = 1;
+};
+unitsPerEm = 1000;
+versionMajor = 1;
+versionMinor = 0;
+}
