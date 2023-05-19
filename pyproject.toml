@@ -8,6 +8,9 @@ authors = [
 dependencies = [
     "fontTools>=4.37.3",
 ]
+readme = "README.md"
+license = {file = "LICENSE"}
+
 
 [tool.setuptools.packages.find]
 where = ["Lib"]

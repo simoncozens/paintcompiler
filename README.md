@@ -43,7 +43,7 @@ Typically the paint definition file is called `paints.py`. If not, you can use t
 
 ## Variation specifications
 
-You can create *variable* paints by passing a *variation specification* to the dpaint function. This variation specification describes how the values to the paint functions vary at different positions in the designspace, and is made up of a dictionary mapping a tuple of axis/location pairs to a value. For example, to create a glyph which rotates -180 degrees when the `ROTA` axis is at -1.0 and rotates 359 degrees when the `ROTA` axis is at 2.0, do this:
+You can create *variable* paints by passing a *variation specification* to the paint function. This variation specification describes how the values to the paint functions vary at different positions in the designspace, and is made up of a dictionary mapping a tuple of axis/location pairs to a value. For example, to create a glyph which rotates -180 degrees when the `ROTA` axis is at -1.0 and rotates 359 degrees when the `ROTA` axis is at 2.0, do this:
 
 ```python
 PaintRotate(
@@ -120,7 +120,7 @@ ColorLine(stops, extend="pad")
 ColorLine(start_stop, end_stop, extend="pad")
 ```
 
-A color line can be specified using a dictionary mapping positions along the gradient (from 0.0 to 1.0) to *stops*, where each stop is either a `color_or_colors` or a tuple `(`color_or_colors, alpha)`; it may also be specified using two stops, in which case one is taken as the start and the other the end. Hence, the following calls are all equivalent:
+A color line can be specified using a dictionary mapping positions along the gradient (from 0.0 to 1.0) to *stops*, where each stop is either a `color_or_colors` or a tuple `(color_or_colors, alpha)`; it may also be specified using two stops, in which case one is taken as the start and the other the end. Hence, the following calls are all equivalent:
 
 ```python
 ColorLine({
