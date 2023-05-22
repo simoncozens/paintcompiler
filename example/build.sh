@@ -1,6 +1,6 @@
 #!/bin/sh
 fontmake -o variable -g COLRv1-Test.glyphs --no-production-names
-python3 -m paintcompiler \
+paintcompiler \
     --add-axis "ALPH:0:0.5:1:Alpha value" \
     --add-axis "STAX:0:0:1000:Start X coordinate" \
     --add-axis "STAY:0:0:1000:Start Y coordinate" \
