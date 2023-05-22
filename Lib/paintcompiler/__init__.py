@@ -92,6 +92,8 @@ class PythonBuilder:
         converter = float
         if units == "f2dot14":
             converter = lambda x: floatToFixed(float(x), 14)
+        elif units == "fixed":
+            converter = lambda x: floatToFixed(float(x), 16)
         elif units == "angle":
             converter = lambda x: floatToFixed(float(x) / 180, 14)
         elif units is not None:
@@ -122,7 +124,7 @@ class PythonBuilder:
             raise ValueError(f"Could not understand variable parameter {s}")
 
         for location, value in values_dict.items():
-            if converter(value) <= -32768 or converter(value) >= 32768:
+            if units != "fixed" and (converter(value) <= -32768 or converter(value) >= 32768):
                 raise ValueError(f"Value too big in '{s}'")
             v.add_value(dict(location), converter(value))
 
@@ -152,6 +154,8 @@ class PythonBuilder:
             return fixedToFloat(default, 14)
         elif units == "angle":
             return fixedToFloat(default, 14) * 180
+        elif units == "fixed":
+            return fixedToFloat(default, 16)
         elif units is not None:
             raise ValueError(f"Unknown units {units}")
         return default
@@ -286,12 +290,12 @@ class PythonBuilder:
             "Format": 13,
             "Paint": paint,
             "Transform": {
-                "xx": self.prepare_variable(matrix[0], units="f2dot14"),
-                "xy": self.prepare_variable(matrix[1], units="f2dot14"),
-                "yx": self.prepare_variable(matrix[2], units="f2dot14"),
-                "yy": self.prepare_variable(matrix[3], units="f2dot14"),
-                "dx": self.prepare_variable(matrix[4]),
-                "dy": self.prepare_variable(matrix[5]),
+                "xx": self.prepare_variable(matrix[0], units="fixed"),
+                "xy": self.prepare_variable(matrix[1], units="fixed"),
+                "yx": self.prepare_variable(matrix[2], units="fixed"),
+                "yy": self.prepare_variable(matrix[3], units="fixed"),
+                "dx": self.prepare_variable(matrix[4], units="fixed"),
+                "dy": self.prepare_variable(matrix[5], units="fixed"),
                 "VarIndexBase": base,
             },
         }
