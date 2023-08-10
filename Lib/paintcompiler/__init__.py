@@ -35,6 +35,8 @@ class ColorLine:
                 v = v[0]
             if isinstance(alpha, (dict, str)):
                 self.needs_variable = True
+            if isinstance(k, (dict, str)):
+                self.needs_variable = True
             self.colorstops.append((k, v, alpha))
 
     def compile(self, compiler):
