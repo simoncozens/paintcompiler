@@ -538,7 +538,8 @@ class PythonBuilder:
     def build_palette(self):
         palette = [compile_colors(stop) for stop in self.palette]
         t_palette = list(map(list, zip(*palette)))
-        self.font["CPAL"] = buildCPAL(t_palette)
+        if t_palette:
+            self.font["CPAL"] = buildCPAL(t_palette)
 
     def build_colr(self, glyphs):
         store = self.varstorebuilder.finish()
