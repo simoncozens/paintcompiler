@@ -58,12 +58,13 @@ class ColorLine:
         obj = {"Extend": self.extend, "ColorStop": []}
         for k, v, alpha in self.colorstops:
             base = len(compiler.deltaset)
+            skeleton = compiler.prepare_variables([
+                {"name": "StopOffset", "value": k, "units": "f2dot14"},
+                {"name": "Alpha", "value": alpha, "units": "f2dot14"},
+            ])
             obj["ColorStop"].append(
-                {
-                    "StopOffset": compiler.prepare_variable(k, units="f2dot14"),
-                    "Alpha": compiler.prepare_variable(alpha, units="f2dot14"),
+                skeleton | {
                     "PaletteIndex": compiler.get_palette_index(v),
-                    "VarIndexBase": base,
                 }
             )
         return obj
@@ -79,11 +80,24 @@ def any_variable(*things):
     return any(is_variable(x) for x in things)
 
 
+def _convert_default_from_variable(default, units=None):
+    if units == "f2dot14":
+        return fixedToFloat(default, 14)
+    elif units == "angle":
+        return fixedToFloat(default, 14) * 180
+    elif units == "fixed":
+        return fixedToFloat(default, 16)
+    elif units is not None:
+        raise ValueError(f"Unknown units {units}")
+    return default
+
+
 class PythonBuilder:
     def __init__(self, font: TTFont) -> None:
         self.font = font
         self.palette = []
         self.variations = []
+        self.varindexbases = []
         self.deltaset: list[int] = []
         assert "fvar" in font, "Font needs an fvar table"
         self.axes = font["fvar"].axes
@@ -148,19 +162,26 @@ class PythonBuilder:
             self.palette.append(color)
         return self.palette.index(color)
 
-    def prepare_variable(self, value, units=None):
-        vs = self.make_var_scalar(value, units=units)
-        default, index = vs.add_to_variation_store(self.varstorebuilder)
-        self.deltaset.append(index)
-        if units == "f2dot14":
-            return fixedToFloat(default, 14)
-        elif units == "angle":
-            return fixedToFloat(default, 14) * 180
-        elif units == "fixed":
-            return fixedToFloat(default, 16)
-        elif units is not None:
-            raise ValueError(f"Unknown units {units}")
-        return default
+    def prepare_variables(self, variables):
+        # Have I seen this precise set of variables before? If so, return a copy
+        for these_variables, skeleton in self.varindexbases:
+            if these_variables == variables:
+                return dict(skeleton)
+
+        base = len(self.deltaset)
+        skeleton = { "VarIndexBase": len(self.deltaset)}
+        for variable in variables:
+            name = variable["name"]
+            value = variable["value"]
+            units = variable.get("units")
+            vs = self.make_var_scalar(value, units=units)
+            default, index = vs.add_to_variation_store(self.varstorebuilder)
+            default = _convert_default_from_variable(default, units)
+            self.deltaset.append(index)
+            skeleton[name] = default
+
+        self.varindexbases.append((variables, skeleton))
+        return skeleton
 
     def PaintColrLayers(self, layers):
         return {"Format": 1, "Layers": layers}
@@ -175,13 +196,12 @@ class PythonBuilder:
         }
 
     def PaintVarSolid(self, col_or_colrs, alpha):
-        base = len(self.deltaset)
-        alpha_def = self.prepare_variable(alpha, units="f2dot14")
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "Alpha", "value": alpha, "units": "f2dot14"}
+        ])
+        return skeleton | {
             "Format": 3,
             "PaletteIndex": self.get_palette_index(col_or_colrs),
-            "Alpha": alpha_def,
-            "VarIndexBase": base,
         }
 
     def PaintLinearGradient(self, pt0, pt1, pt2, colorline):
@@ -199,17 +219,17 @@ class PythonBuilder:
         }
 
     def PaintVarLinearGradient(self, pt0, pt1, pt2, colorline):
-        base = len(self.deltaset)
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "x0", "value":pt0[0]},
+            {"name": "y0", "value":pt0[1]},
+            {"name": "x1", "value":pt1[0]},
+            {"name": "y1", "value":pt1[1]},
+            {"name": "x2", "value":pt2[0]},
+            {"name": "y2", "value":pt2[1]},
+        ])
+        return skeleton | {
             "Format": 5,
-            "x0": self.prepare_variable(pt0[0]),
-            "y0": self.prepare_variable(pt0[1]),
-            "x1": self.prepare_variable(pt1[0]),
-            "y1": self.prepare_variable(pt1[1]),
-            "x2": self.prepare_variable(pt2[0]),
-            "y2": self.prepare_variable(pt2[1]),
             "ColorLine": colorline.compile_var(self),
-            "VarIndexBase": base,
         }
 
     def PaintRadialGradient(self, pt0, rad0, pt1, rad1, colorline):
@@ -227,17 +247,17 @@ class PythonBuilder:
         }
 
     def PaintVarRadialGradient(self, pt0, rad0, pt1, rad1, varcolorline):
-        base = len(self.deltaset)
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "x0", "value":pt0[0]},
+            {"name": "y0", "value":pt0[1]},
+            {"name": "r0", "value":rad0},
+            {"name": "x1", "value":pt1[0]},
+            {"name": "y1", "value":pt1[1]},
+            {"name": "r1", "value":rad1},
+        ])
+        return skeleton | {
             "Format": 7,
-            "x0": self.prepare_variable(pt0[0]),
-            "y0": self.prepare_variable(pt0[1]),
-            "r0": self.prepare_variable(rad0),
-            "x1": self.prepare_variable(pt1[0]),
-            "y1": self.prepare_variable(pt1[1]),
-            "r1": self.prepare_variable(rad1),
             "ColorLine": varcolorline.compile_var(self),
-            "VarIndexBase": base,
         }
 
     def PaintSweepGradient(self, pt, startAngle, endAngle, colorline):
@@ -253,15 +273,15 @@ class PythonBuilder:
         }
 
     def PaintVarSweepGradient(self, pt, startAngle, endAngle, varcolorline):
-        base = len(self.deltaset)
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "centerX", "value":pt[0]},
+            {"name": "centerY", "value":pt[1]},
+            {"name": "startAngle", "value":startAngle, "units": "angle"},
+            {"name": "endAngle", "value":endAngle, "units": "angle"},
+        ])
+        return skeleton | {
             "Format": 9,
-            "centerX": self.prepare_variable(pt[0]),
-            "centerY": self.prepare_variable(pt[1]),
-            "startAngle": self.prepare_variable(startAngle, units="angle"),
-            "endAngle": self.prepare_variable(endAngle, units="angle"),
             "ColorLine": varcolorline.compile_var(self),
-            "VarIndexBase": base,
         }
 
     def PaintGlyph(self, glyph, paint=None):
@@ -287,19 +307,18 @@ class PythonBuilder:
         }
 
     def PaintVarTransform(self, matrix, paint):
-        base = len(self.deltaset)
+        skeleton = self.prepare_variables([
+                {"name": "xx", "value": matrix[0], "units": "fixed"},
+                {"name": "xy", "value": matrix[1], "units": "fixed"},
+                {"name": "yx", "value": matrix[2], "units": "fixed"},
+                {"name": "yy", "value": matrix[3], "units": "fixed"},
+                {"name": "dx", "value": matrix[4], "units": "fixed"},
+                {"name": "dy", "value": matrix[5], "units": "fixed"},
+        ])
         return {
             "Format": 13,
             "Paint": paint,
-            "Transform": {
-                "xx": self.prepare_variable(matrix[0], units="fixed"),
-                "xy": self.prepare_variable(matrix[1], units="fixed"),
-                "yx": self.prepare_variable(matrix[2], units="fixed"),
-                "yy": self.prepare_variable(matrix[3], units="fixed"),
-                "dx": self.prepare_variable(matrix[4], units="fixed"),
-                "dy": self.prepare_variable(matrix[5], units="fixed"),
-                "VarIndexBase": base,
-            },
+            "Transform": skeleton,
         }
 
     def PaintTranslate(self, dx, dy, paint):
@@ -308,13 +327,13 @@ class PythonBuilder:
         return {"Format": 14, "dx": dx, "dy": dy, "Paint": paint}
 
     def PaintVarTranslate(self, dx, dy, paint):
-        base = len(self.deltaset)
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "dx", "value": dx},
+            {"name": "dy", "value": dy},
+        ])
+        return skeleton | {
             "Format": 15,
-            "dx": self.prepare_variable(dx),
-            "dy": self.prepare_variable(dy),
             "Paint": paint,
-            "VarIndexBase": base,
         }
 
     def PaintScale(self, *args, scale_x=None, scale_y=None, center=None, paint=None):
@@ -352,13 +371,13 @@ class PythonBuilder:
         }
 
     def PaintVarScale(self, scale_x, scale_y, paint):
-        base = len(self.deltaset)
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "scaleX", "value": scale_x, "units": "f2dot14"},
+            {"name": "scaleY", "value": scale_y, "units": "f2dot14"},
+        ])
+        return skeleton | {
             "Format": 17,
-            "scaleX": self.prepare_variable(scale_x, units="f2dot14"),
-            "scaleY": self.prepare_variable(scale_y, units="f2dot14"),
             "Paint": paint,
-            "VarIndexBase": base,
         }
 
     def PaintScaleAroundCenter(self, scale_x, scale_y, center, paint):
@@ -374,15 +393,15 @@ class PythonBuilder:
         }
 
     def PaintVarScaleAroundCenter(self, scale_x, scale_y, center, paint):
-        base = len(self.deltaset)
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "scaleX", "value": scale_x, "units": "f2dot14"},
+            {"name": "scaleY", "value": scale_y, "units": "f2dot14"},
+            {"name": "centerX", "value": center[0] },
+            {"name": "centerY", "value": center[1] },
+        ])
+        return skeleton | {
             "Format": 19,
-            "scaleX": self.prepare_variable(scale_x, units="f2dot14"),
-            "scaleY": self.prepare_variable(scale_y, units="f2dot14"),
-            "centerX": self.prepare_variable(center[0]),
-            "centerY": self.prepare_variable(center[1]),
             "Paint": paint,
-            "VarIndexBase": base,
         }
 
     def PaintScaleUniform(self, scale, paint):
@@ -395,12 +414,12 @@ class PythonBuilder:
         }
 
     def PaintVarScaleUniform(self, scale, paint):
-        base = len(self.deltaset)
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "scale", "value": scale, "units": "f2dot14"}
+        ])
+        return skeleton | {
             "Format": 21,
-            "scale": self.prepare_variable(scale, units="f2dot14"),
             "Paint": paint,
-            "VarIndexBase": base,
         }
 
     def PaintScaleUniformAroundCenter(self, scale, center, paint):
@@ -415,15 +434,16 @@ class PythonBuilder:
         }
 
     def PaintVarScaleUniformAroundCenter(self, scale, center, paint):
-        base = len(self.deltaset)
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "scale", "value": scale, "units": "f2dot14"},
+            {"name": "centerX", "value": center[0]},
+            {"name": "centerY", "value": center[1]},
+        ])
+        return skeleton | {
             "Format": 23,
-            "scale": self.prepare_variable(scale, units="f2dot14"),
-            "centerX": self.prepare_variable(center[0]),
-            "centerY": self.prepare_variable(center[1]),
             "Paint": paint,
-            "VarIndexBase": base,
         }
+
 
     def PaintRotate(self, *args, angle=None, paint=None, center=None):
         if paint is None and len(args) == 1:
@@ -442,12 +462,13 @@ class PythonBuilder:
         return {"Format": 24, "angle": angle, "Paint": paint}
 
     def PaintVarRotate(self, angle, paint):
-        base = len(self.deltaset)
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "angle", "value": angle, "units": "angle"}
+        ])
+
+        return skeleton | {
             "Format": 25,
-            "angle": self.prepare_variable(angle, units="angle"),
             "Paint": paint,
-            "VarIndexBase": base,
         }
 
     def PaintRotateAroundCenter(self, angle, center, paint):
@@ -462,14 +483,14 @@ class PythonBuilder:
         }
 
     def PaintVarRotateAroundCenter(self, angle, center, paint):
-        base = len(self.deltaset)
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "angle", "value": angle, "units": "angle"},
+            {"name": "centerX", "value": center[0]},
+            {"name": "centerY", "value": center[1]},
+        ])
+        return skeleton | {
             "Format": 27,
-            "angle": self.prepare_variable(angle, units="angle"),
-            "centerX": self.prepare_variable(center[0]),
-            "centerY": self.prepare_variable(center[1]),
             "Paint": paint,
-            "VarIndexBase": base,
         }
 
     def PaintSkew(self, xSkewAngle, ySkewAngle, paint, center=None):
@@ -486,13 +507,13 @@ class PythonBuilder:
         }
 
     def PaintVarSkew(self, xSkewAngle, ySkewAngle, paint):
-        base = len(self.deltaset)
-        return {
+        skeleton = self.prepare_variables([
+            {"name": "xSkewAngle", "value": xSkewAngle, "units": "angle"},
+            {"name": "ySkewAngle", "value": ySkewAngle, "units": "angle"},
+        ])
+        return skeleton | {
             "Format": 29,
-            "xSkewAngle": self.prepare_variable(xSkewAngle, units="angle"),
-            "ySkewAngle": self.prepare_variable(ySkewAngle, units="angle"),
             "Paint": paint,
-            "VarIndexBase": base,
         }
 
     def PaintSkewAroundCenter(self, angle_x, angle_y, center, paint):
@@ -507,22 +528,16 @@ class PythonBuilder:
             "Paint": paint,
         }
 
-    def PaintVarSkewAroundCenter(self, angle_x, angle_y, center, paint):
-        base = len(self.deltaset)
-        return {
+    def PaintVarSkewAroundCenter(self, xSkewAngle, ySkewAngle, center, paint):
+        skeleton = self.prepare_variables([
+            {"name": "xSkewAngle", "value": xSkewAngle, "units": "angle"},
+            {"name": "ySkewAngle", "value": ySkewAngle, "units": "angle"},
+            {"name": "centerX", "value": center[0]},
+            {"name": "centerY", "value": center[1]},
+        ])
+        return skeleton | {
             "Format": 31,
-            "xSkewAngle": self.prepare_variable(
-                angle_x,
-                units="angle",
-            ),
-            "ySkewAngle": self.prepare_variable(
-                angle_y,
-                units="angle",
-            ),
-            "centerX": self.prepare_variable(center[0]),
-            "centerY": self.prepare_variable(center[1]),
             "Paint": paint,
-            "VarIndexBase": base,
         }
 
     def PaintComposite(self, mode, src, dst):
