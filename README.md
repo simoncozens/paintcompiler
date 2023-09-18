@@ -41,6 +41,24 @@ for glyphname in font.getGlyphOrder():
 
 Typically the paint definition file is called `paints.py`. If not, you can use the `-p`/`--paints` flag on the command line to specify a different name.
 
+## Using `paintdecompiler`
+
+If you have an *existing* COLRv1 font and you want to turn it back into a Python definition (paints file), you can use the `paintdecompiler` utility included with this module to do this. It is not smart enough to e.g. extract shared colorlines or variations into a Python variable, but it should get you started.
+
+```
+$ paintdecompiler example/COLRv1-Test.ttf
+Written on paints.py
+$ head paints.py
+glyphs["p1_PaintColrLayers"] = PaintColrLayers(
+    [
+        PaintGlyph("square", PaintSolid("#EA4335FF")),
+        PaintGlyph("circle", PaintSolid("#4285F4FF")),
+    ],
+)
+glyphs["p2_PaintSolid"] = PaintGlyph("square", PaintSolid("#EA4335FF"))
+...
+```
+
 ## Variation specifications
 
 You can create *variable* paints by passing a *variation specification* to the paint function. This variation specification describes how the values to the paint functions vary at different positions in the designspace, and is made up of a dictionary mapping a tuple of axis/location pairs to a value. For example, to create a glyph which rotates -180 degrees when the `ROTA` axis is at -1.0 and rotates 359 degrees when the `ROTA` axis is at 2.0, do this:
