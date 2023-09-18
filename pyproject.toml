@@ -17,3 +17,4 @@ where = ["Lib"]
 
 [project.scripts]
 paintcompiler = "paintcompiler:main"
+paintdecompiler = "paintdecompiler:main"
