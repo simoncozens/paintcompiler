@@ -99,12 +99,19 @@ class PythonBuilder:
         self.variations = []
         self.varindexbases = []
         self.deltaset: list[int] = []
-        assert "fvar" in font, "Font needs an fvar table"
-        self.axes = font["fvar"].axes
-        axis_tags = [x.axisTag for x in self.axes]
-        self.varstorebuilder = OnlineVarStoreBuilder(axis_tags)
+        self.axes = []
+        self.varstorebuilder = None
+        if "fvar" in font:
+            self.axes = font["fvar"].axes
+            axis_tags = [x.axisTag for x in self.axes]
+            self.varstorebuilder = OnlineVarStoreBuilder(axis_tags)
 
     def make_var_scalar(self, s, units=None):
+        if not self.varstorebuilder:
+            raise ValueError(
+                "Attempt to use a variable scalar %s, but this was not a variable font"
+                % s
+            )
         converter = float
         if units == "f2dot14":
             converter = lambda x: floatToFixed(float(x), 14)
