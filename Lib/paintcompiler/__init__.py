@@ -5,6 +5,7 @@ from fontTools.ttLib.tables.otTables import CompositeMode
 from fontTools.varLib.varStore import OnlineVarStoreBuilder
 from fontTools.varLib.builder import buildDeltaSetIndexMap
 from fontTools.feaLib.variableScalar import VariableScalar
+from fontTools.varLib.instancer import _TupleVarStoreAdapter
 from fontTools.misc.fixedTools import floatToFixed, fixedToFloat
 from fontTools.ttLib.tables._f_v_a_r import Axis
 
@@ -619,6 +620,43 @@ def compile_paints(font, python_code):
     builder.build_palette()
 
 
+def update_varstore(font, tag, orig_axes):
+    if tag not in font or not font[tag].table.VarStore:
+        return
+    store = font[tag].table.VarStore
+    tupleVarStore = _TupleVarStoreAdapter.fromItemVarStore(store, orig_axes)
+    tupleVarStore.axisOrder = [ax.axisTag for ax in font["fvar"].axes]
+    font[tag].table.VarStore = tupleVarStore.asItemVarStore()
+
+
+def add_axes(font: TTFont, axes: list[str]):
+    if "fvar" in font:
+        fvar = font["fvar"]
+    else:
+        font["fvar"] = fvar = newTable("fvar")
+    font.ensureDecompiled(True)
+    orig_axes = list(fvar.axes)
+    nameTable = font["name"]
+
+    for axis_def in axes:
+        axis = Axis()
+        (tag, minvalue, default, maxvalue, name) = axis_def.split(":")
+        axis.axisTag = tag
+        axis.defaultValue = float(default)
+        axis.maxValue = float(maxvalue)
+        axis.minValue = float(minvalue)
+        name = dict(en=name)
+        axis.axisNameID = nameTable.addMultilingualName(name, ttFont=font)
+        fvar.axes.append(axis)
+        for instance in fvar.instances:
+            instance.coordinates[axis.axisTag] = axis.defaultValue
+        if "avar" in font:
+            font["avar"].segments[tag] = {}
+
+    for tag in ["GDEF", "HVAR", "VVAR", "MVAR"]:
+        update_varstore(font, tag, orig_axes)
+
+
 def main(args=None):
     import argparse
     from fontTools.ttLib import newTable
@@ -651,24 +689,6 @@ def main(args=None):
         help="The paint description file (defaults to paints.py)",
     )
     parser.add_argument("font", metavar="TTF", help="The input font file")
-
-    def add_axes(font: TTFont, axes: list[str]):
-        if "fvar" in font:
-            fvar = font["fvar"]
-        else:
-            font["fvar"] = fvar = newTable("fvar")
-        nameTable = font["name"]
-
-        for axis_def in axes:
-            axis = Axis()
-            (tag, minvalue, default, maxvalue, name) = axis_def.split(":")
-            axis.axisTag = tag
-            axis.defaultValue = float(default)
-            axis.maxValue = float(maxvalue)
-            axis.minValue = float(minvalue)
-            name = dict(en=name)
-            axis.axisNameID = nameTable.addMultilingualName(name, ttFont=font)
-            fvar.axes.append(axis)
 
     args = parser.parse_args()
 
