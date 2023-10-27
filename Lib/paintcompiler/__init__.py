@@ -10,7 +10,11 @@ from fontTools.ttLib.tables._f_v_a_r import Axis
 
 
 def compile_color(c):
-    return tuple(int(x, 16) / 255 for x in [c[1:3], c[3:5], c[5:7], c[7:9]])
+    try:
+        assert(c[0] == "#")
+        return tuple(int(x, 16) / 255 for x in [c[1:3], c[3:5], c[5:7], c[7:9]])
+    except:
+        raise ValueError(f"Could not understand color {c}; should be hex digits in form #RRGGBBAA")
 
 
 def compile_colors(colors):
