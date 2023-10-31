@@ -8,6 +8,7 @@ from fontTools.feaLib.variableScalar import VariableScalar
 from fontTools.varLib.instancer import _TupleVarStoreAdapter
 from fontTools.misc.fixedTools import floatToFixed, fixedToFloat
 from fontTools.ttLib.tables._f_v_a_r import Axis
+from typing import List
 
 
 def compile_color(c):
@@ -629,7 +630,7 @@ def update_varstore(font, tag, orig_axes):
     font[tag].table.VarStore = tupleVarStore.asItemVarStore()
 
 
-def add_axes(font: TTFont, axes: list[str]):
+def add_axes(font: TTFont, axes: List[str]):
     if "fvar" in font:
         fvar = font["fvar"]
     else:
