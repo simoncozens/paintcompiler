@@ -219,7 +219,8 @@ class PythonBuilder:
         skeleton = self.prepare_variables(
             [{"name": "Alpha", "value": alpha, "units": "f2dot14"}]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 3,
             "PaletteIndex": self.get_palette_index(col_or_colrs),
         }
@@ -249,7 +250,8 @@ class PythonBuilder:
                 {"name": "y2", "value": pt2[1]},
             ]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 5,
             "ColorLine": colorline.compile_var(self),
         }
@@ -279,7 +281,8 @@ class PythonBuilder:
                 {"name": "r1", "value": rad1},
             ]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 7,
             "ColorLine": varcolorline.compile_var(self),
         }
@@ -305,7 +308,8 @@ class PythonBuilder:
                 {"name": "endAngle", "value": endAngle, "units": "angle"},
             ]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 9,
             "ColorLine": varcolorline.compile_var(self),
         }
@@ -361,7 +365,8 @@ class PythonBuilder:
                 {"name": "dy", "value": dy},
             ]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 15,
             "Paint": paint,
         }
@@ -407,7 +412,8 @@ class PythonBuilder:
                 {"name": "scaleY", "value": scale_y, "units": "f2dot14"},
             ]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 17,
             "Paint": paint,
         }
@@ -433,7 +439,8 @@ class PythonBuilder:
                 {"name": "centerY", "value": center[1]},
             ]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 19,
             "Paint": paint,
         }
@@ -451,7 +458,8 @@ class PythonBuilder:
         skeleton = self.prepare_variables(
             [{"name": "scale", "value": scale, "units": "f2dot14"}]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 21,
             "Paint": paint,
         }
@@ -475,7 +483,8 @@ class PythonBuilder:
                 {"name": "centerY", "value": center[1]},
             ]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 23,
             "Paint": paint,
         }
@@ -501,7 +510,8 @@ class PythonBuilder:
             [{"name": "angle", "value": angle, "units": "angle"}]
         )
 
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 25,
             "Paint": paint,
         }
@@ -525,7 +535,8 @@ class PythonBuilder:
                 {"name": "centerY", "value": center[1]},
             ]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 27,
             "Paint": paint,
         }
@@ -550,7 +561,8 @@ class PythonBuilder:
                 {"name": "ySkewAngle", "value": ySkewAngle, "units": "angle"},
             ]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 29,
             "Paint": paint,
         }
@@ -576,7 +588,8 @@ class PythonBuilder:
                 {"name": "centerY", "value": center[1]},
             ]
         )
-        return skeleton | {
+        return {
+            **skeleton,
             "Format": 31,
             "Paint": paint,
         }
