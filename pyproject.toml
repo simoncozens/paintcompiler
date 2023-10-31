@@ -1,7 +1,7 @@
 [project]
 name = "paintcompiler"
 description = "Paint compiler for COLRv1 fonts"
-version = "0.3.0"
+version = "0.3.1"
 authors = [
     { name = "Simon Cozens", email = "simon@simon-cozens.org" }
 ]
