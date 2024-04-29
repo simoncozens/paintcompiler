@@ -205,9 +205,10 @@ class PythonBuilder:
                 raise ValueError(
                     f"Palette index {color} out of range; call SetColors first"
                 )
+            return color
         if self.explicit_palette:
             raise ValueError(
-                "Color specified, but SetColors was called; "
+                f"Color {color} specified, but SetColors was called; "
                 "use palette index directly instead"
             )
         if not isinstance(color, list):
@@ -645,7 +646,7 @@ class PythonBuilder:
         # colors should be an array of strings or array of arrays
         for index, color in enumerate(colors):
             if not isinstance(color, list):
-                color = [color]
+                color = colors[index] = [color]
             for c in color:
                 if not re.match(r"^#[0-9a-fA-F]{8}$", c):
                     raise ValueError(
@@ -653,7 +654,7 @@ class PythonBuilder:
                         "should be in the form #RRGGBBAA"
                     )
 
-        self.palette = compile_palettes(colors)
+        self.palette = colors
 
     def SetPaletteFlags(self, palette_index, flags):
         if not self.palette:
