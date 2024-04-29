@@ -1,6 +1,6 @@
-BLUE = "#4285F4FF"
-GREEN = "#34A853FF"
-RED = "#EA4335FF"
+BLUE = ["#4285F4FF", "#02317DFF"]
+GREEN = "#035719FF"
+RED = ["#EA4335FF", "#8C0D03FF"]
 
 
 ax = {}
@@ -264,3 +264,6 @@ glyphs["p32_PaintComposite"] = PaintComposite(
     PaintComposite("dest_out", GREENSTAR, BLUECIRCLE),
     REDSQUARE,
 )
+
+SetLightMode(0)
+SetDarkMode(1)

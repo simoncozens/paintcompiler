@@ -9,6 +9,7 @@ from fontTools.varLib.instancer import _TupleVarStoreAdapter
 from fontTools.misc.fixedTools import floatToFixed, fixedToFloat
 from fontTools.ttLib.tables._f_v_a_r import Axis
 from typing import List
+import re
 
 
 def compile_color(c):
@@ -21,8 +22,22 @@ def compile_color(c):
         )
 
 
-def compile_colors(colors):
+def compile_palette_entry(colors):
     return [compile_color(c) for c in colors]
+
+
+def compile_palettes(entries):
+    # each element of the array should be the same length;
+    # if it is one, pad to the max length, if not raise an error
+    max_length = max(len(entry) for entry in entries)
+    for index, entry in enumerate(entries):
+        if len(entry) == 1:
+            entries[index] = entry * max_length
+        elif len(entry) != max_length:
+            raise ValueError(
+                f"Pallete index {index} specifies {len(entry)} palettes ({entry}), but should have {max_length}"
+            )
+    return [compile_palette_entry(colors) for colors in entries]
 
 
 class ColorLine:
@@ -38,7 +53,7 @@ class ColorLine:
             stops = list(stops.items())
         for k, v in stops:
             alpha = 1.0
-            if isinstance(v, (list, tuple)):
+            if isinstance(v, (list, tuple)) and isinstance(v[1], (float, int, dict)):
                 alpha = v[1]
                 v = v[0]
             if isinstance(alpha, (dict, str)):
@@ -106,7 +121,9 @@ def _convert_default_from_variable(default, units=None):
 class PythonBuilder:
     def __init__(self, font: TTFont) -> None:
         self.font = font
+        self.explicit_palette = False
         self.palette = []
+        self.palette_flags = {}
         self.variations = []
         self.varindexbases = []
         self.deltaset: list[int] = []
@@ -144,7 +161,13 @@ class PythonBuilder:
 
         if isinstance(s, str):
             for values in s.split():
-                locations, value = values.split(":")
+                try:
+                    locations, value = values.split(":")
+                except ValueError:
+                    raise ValueError(
+                        f"Could not understand variable parameter {s}, "
+                        "should be of the form tag=value,tag=value:default"
+                    )
                 location = {}
                 for loc in locations.split(","):
                     axis, axis_loc = loc.split("=")
@@ -176,6 +199,17 @@ class PythonBuilder:
     def get_palette_index(self, color):
         if color == "foreground":
             return 0xFFFF
+        if isinstance(color, int):
+            # Check if palette exists and is long enough
+            if color >= len(self.palette):
+                raise ValueError(
+                    f"Palette index {color} out of range; call SetColors first"
+                )
+        if self.explicit_palette:
+            raise ValueError(
+                "Color specified, but SetColors was called; "
+                "use palette index directly instead"
+            )
         if not isinstance(color, list):
             color = [color]
         if color not in self.palette:
@@ -606,11 +640,55 @@ class PythonBuilder:
             "BackdropPaint": dst,
         }
 
+    def SetColors(self, colors):
+        self.explicit_palette = True
+        # colors should be an array of strings or array of arrays
+        for index, color in enumerate(colors):
+            if not isinstance(color, list):
+                color = [color]
+            for c in color:
+                if not re.match(r"^#[0-9a-fA-F]{8}$", c):
+                    raise ValueError(
+                        f"Color {c} at index {index} is not a valid color; "
+                        "should be in the form #RRGGBBAA"
+                    )
+
+        self.palette = compile_palettes(colors)
+
+    def SetPaletteFlags(self, palette_index, flags):
+        if not self.palette:
+            raise ValueError("Use colors or SetPalette before SetPaletteFlags")
+        num_palettes = max(len(colors) for colors in self.palette)
+        if palette_index >= num_palettes:
+            raise ValueError(
+                f"Palette index {palette_index} out of range; "
+                f"should be less than {num_palettes}"
+            )
+        if flags not in ["light", "dark"]:
+            raise ValueError(f"Unknown palette flags {flags}")
+        if palette_index not in self.palette_flags:
+            self.palette_flags[palette_index] = 0
+        if flags == "light":
+            self.palette_flags[palette_index] |= 0x0001
+        else:
+            self.palette_flags[palette_index] |= 0x0002
+
+    def SetDarkMode(self, palette_index):
+        self.SetPaletteFlags(palette_index, "dark")
+
+    def SetLightMode(self, palette_index):
+        self.SetPaletteFlags(palette_index, "light")
+
     def build_palette(self):
-        palette = [compile_colors(stop) for stop in self.palette]
+        palette = compile_palettes(self.palette)
         t_palette = list(map(list, zip(*palette)))
         if t_palette:
             self.font["CPAL"] = buildCPAL(t_palette)
+        if self.palette_flags:
+            self.font["CPAL"].version = 1
+            self.font["CPAL"].paletteTypes = [
+                self.palette_flags.get(i, 0) for i in range(len(t_palette))
+            ]
 
     def build_colr(self, glyphs):
         store = self.varstorebuilder.finish()
@@ -626,7 +704,12 @@ class PythonBuilder:
 
 def compile_paints(font, python_code):
     builder = PythonBuilder(font)
-    methods = [x for x in dir(builder) if x.startswith("Paint")]
+    methods = [x for x in dir(builder) if x.startswith("Paint")] + [
+        "SetColors",
+        "SetPaletteFlags",
+        "SetDarkMode",
+        "SetLightMode",
+    ]
     this_locals = {"glyphs": {}, "font": font, "ColorLine": ColorLine}
     for method in methods:
         this_locals[method] = getattr(builder, method)

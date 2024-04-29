@@ -254,13 +254,92 @@ PaintComposite(mode, src_paint, dst_paint)
 
 Composites the source paint onto the destination paint. `mode` must be one of `'clear', 'src', 'dest', 'src_over', 'dest_over', 'src_in', 'dest_in', 'src_out', 'dest_out', 'src_atop', 'dest_atop', 'xor', 'plus', 'screen', 'overlay', 'darken', 'lighten', 'color_dodge', 'color_burn', 'hard_light', 'soft_light', 'difference', 'exclusion', 'multiply', 'hsl_hue', 'hsl_saturation', 'hsl_color', 'hsl_luminosity'`.
 
+## Specifying colors
+
+There are multiple ways of specifying colors to be used to paint your glyphs,
+depending on the complexity of your project. For simple projects, where there
+are few colors and a single color palette, you may find it easiest to specify
+colors directly using a hex string of the form `#RRGGBBAA`, as we have done
+so far in these examples:
+
+```python
+    PaintGlyph("square", PaintSolid("#FF0000FF"))
+```
+
+If you wish to use multiple palettes, you can write a list of strings instead
+of a single string:
+
+```python
+    PaintGlyph("square", PaintSolid([
+        "#FF0000FF",  # Red in pallete 0
+        "#00FF00FF",  # Green in pallete 1
+    ]))
+```
+
+You may to a certain extent mix these two styles: if you have
+
+```python
+    PaintGlyph("square", PaintSolid("#FF0000FF"))
+    ...
+    PaintGlyph("triangle", PaintSolid([
+        "#00FF00FF",
+        "#0000FFFF",
+    ]))
+```
+
+then `square` will be red in both palettes, but triangle will be blue in palette 0
+but blue in pallete 1. However, this will give an error:
+
+```python
+    PaintGlyph("square", PaintSolid([
+        "#FF0000FF",
+        "#00FF00FF",
+        "#0000FFFF",
+    ]))
+    ...
+    PaintGlyph("triangle", PaintSolid([
+        "#00FF00FF",
+        "#0000FFFF",
+        # It's not clear what color should be used for palette 2 here.
+    ]))
+```
+
+For more complex projects, it may be easier to declare your color palettes
+in advance, and give numeric indices into the palette. You do this with the
+`SetColors` function. However, note that the palettes are specified as a
+list of *entries*, just like we have been doing so far.
+
+```python
+SetColors([
+    ["#FF000000FF", "#00FF000FF"],
+    "#0000FFFF",
+])
+
+PaintGlyph("square", 0) # Entry 0 -> red in palette 0, green in palette 1
+PaintGlyph("circle", 1) # Entry 1 -> blue in both palettes
+```
+
+OpenType allows for the designer to specify that certain palettes (not colors!)
+are designed for light-mode or dark-mode interfaces - or even both. You can set
+this information in the font with the `SetDarkMode` and `SetLightMode` functions.
+These take a *palette index* and must be called after colors have been set up:
+
+```python
+SetColors([
+    ["#FF000000FF", "#00FF000FF"],
+    "#0000FFFF",
+])
+SetLightMode(0)  # Red and blue
+SetDarkMode(1)   # Green and blue
+```
+
 ## Why not just use `fontTools.colorLib.builder`?
 
 `paintcompiler` does use the fontTools color builder underneath to construct the COLR tables, but it adds a few helpful facilities on top:
 
 * `paintcompiler` provides a command line interface to add COLR tables. This command line interface allows adding synthetic axes.
 
-* Color palettes are built automatically, so you don't have to assign each color to an index and carry that index around - just specify the color directly. (You can still specify user-selected alternate color palettes by writing the color as an array of options.)
+* Color palettes are built automatically, and with the flexibility described above.
 
 * In `paintcompiler`, paint operations are functions; this makes the syntax considerably less verbose and easier to follow. Compare
 
