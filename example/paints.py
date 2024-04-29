@@ -170,9 +170,7 @@ glyphs["p18_PaintScaleAroundCenter"] = PaintColrLayers(
 glyphs["p19_PaintVarScaleAroundCenter"] = PaintColrLayers(
     [
         REDSQUARE,
-        PaintScale(
-            ax["SCLX"], ax["SCLY"], (ax["STAX"], ax["STAY"]), BLUESQUARE
-        ),
+        PaintScale(ax["SCLX"], ax["SCLY"], (ax["STAX"], ax["STAY"]), BLUESQUARE),
     ]
 )
 
@@ -200,9 +198,7 @@ glyphs["p22_PaintScaleUniformAroundCenter"] = PaintColrLayers(
 glyphs["p23_PaintVarScaleUniformAroundCenter"] = PaintColrLayers(
     [
         REDSQUARE,
-        PaintScale(
-            ax["SCLX"], BLUESQUARE, center= (ax["STAX"], ax["STAY"])
-        ),
+        PaintScale(ax["SCLX"], BLUESQUARE, center=(ax["STAX"], ax["STAY"])),
     ]
 )
 
@@ -259,9 +255,7 @@ glyphs["p30_PaintSkewAroundCenter"] = PaintColrLayers(
 glyphs["p31_PaintVarSkewAroundCenter"] = PaintColrLayers(
     [
         REDSQUARE,
-        PaintSkew(
-            ax["STAA"], ax["ENDA"], BLUESQUARE, center=(ax["STAX"], ax["STAY"])
-        ),
+        PaintSkew(ax["STAA"], ax["ENDA"], BLUESQUARE, center=(ax["STAX"], ax["STAY"])),
     ]
 )
 
