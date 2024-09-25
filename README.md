@@ -4,7 +4,7 @@
 % paintcompiler --output "Example-Color.ttf" Example-Mono.ttf
 ```
 
-There's a huge amount of very clever and pretty things you can do with the [COLRv1 font fonmat](https://github.com/googlefonts/colr-gradients-spec/blob/main/OFF_AMD2_WD.md). However, most font editors only expose a very small subset of the capabilities of the format. This is largely because, due to the fact that COLRv1 is so rich and extensive, it's not easy to produce a user interface which exposes all the functionality in a flexible way.
+There's a huge amount of very clever and pretty things you can do with the [COLRv1 font format](https://github.com/googlefonts/colr-gradients-spec/blob/main/OFF_AMD2_WD.md). However, most font editors only expose a very small subset of the capabilities of the format. This is largely because, due to the fact that COLRv1 is so rich and extensive, it's not easy to produce a user interface which exposes all the functionality in a flexible way.
 
 `paintcompiler` is a Python library and command line tool which makes it (slightly) easier to add COLRv1 `COLR` and `CPAL` tables to your fonts, using all the features that the format has to offer. That's the positive side. The negative side is that you need to describe your COLRv1 paints as Python code.
 
